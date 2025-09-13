@@ -1,0 +1,130 @@
+---
+title: "Escucha social de comunidades chilenas en Reddit"
+subtitle: "Un enfoque computacional"
+institute: "Matías Deneken & Gabriel Saavedra"
+date: today
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    incremental: false
+    fontsize: 28px
+    margin: 0.3
+    transition: fade
+    controls: true
+    controls-layout: bottom-right
+    css: styles.css
+    template-partials:
+      - title-slide.html
+    cite-method: citeproc
+    footer: "Universida de Concepción - CDIA"
+---
+
+
+## ¿Qué es Reddit? 
+
+Reddit es una plataforma de redes sociales tipo foro donde los usuarios envían, comparten y votan contenido, el cual se organiza en comunidades llamadas subreddits dedicadas a diferentes temas. Es un lugar para el debate, la interacción y el descubrimiento de información y contenido, funcionando como una red de comunidades especializadas donde los usuarios encuentran a otros con intereses similares. 
+
+
+## Introducción
+
+-   Contexto. Las conversaciones digitales son hoy el termómetro más rápido del clima social y político en Chile. Reddit ofrece hilos profundos, lenguaje coloquial y debate menos filtrado: ideal para oír “cómo se encuadra” lo público, no solo cuánto se habla.
+
+-   Relevancia. Sirve a periodistas, áreas de estudios y tomadores de decisión que necesitan señales tempranas sobre temas, marcos y emociones.
+
+-   Objetivo. Diseñar y validar un servicio de escucha social que transforme conversaciones en insights accionables (tópicos, encuadres, emociones) con trazabilidad.
+
+-   Solución (resumen). Radar de Conversaciones: ingesta (Reddit piloto), NLP/ML (tópicos, emociones), dashboard con tendencias y alertas.
+
+## MVP
+
+**Nombre & propósito.** Radar de Conversaciones Digitales en Chile: plataforma de escucha social que detecta **temas**, **encuadres** y **emociones** casi en tiempo real para decisiones informadas.\
+**Usuarios.**
+
+-   Analistas/periodistas → agenda y quiebres narrativos.
+
+-   Unidades públicas → percepciones y riesgos comunicacionales.
+
+-   Academia → series comparables de tópicos y emociones.\
+    **Valor diferencial.** Reddit como laboratorio de debate (hilos profundos, lenguaje coloquial) + **Machine Learning** para validar flairs como señales débiles (no solo conteos).\
+    **Qué entrega.**
+
+-   **Dashboard**: Tendencias, Temas & Emociones, Riesgos/Alertas, Calidad & Cobertura.
+
+## MVP
+
+**Hipótesis.** Es posible convertir conversaciones de comunidades chilenas en **insights accionables** (temas/encuadres/emo) con calidad y velocidad útiles a no técnicos.\
+**Alcance mínimo.** Subreddits chilenos seleccionados; ingesta vía API.
+
+-   **Emociones/valencia** (español Chile).
+
+-   **Tendencias & alertas** (volumen + encuadre con umbrales σ).
+
+## Métodos
+
+Pipeline **reproducible** con trazabilidad: **captura** vía API → **normalización** de tipos/fechas → **depuración** (duplicados, supresiones, outliers señalizados) → **enriquecimiento** (idioma, categoría, entidades) → **modelado** (tópicos, emociones, encuadres)
+
+
+
+### Datos
+
+Fuentes: subreddits chilenos (r/chile, r/RepublicadeChile, r/ChilePolitico, r/chile_es, r/Santiago). Variables: IDs y jerarquía del hilo, **timestamps** (UTC→America/Santiago), **texto unificado** (title/selftext/body), métricas de interacción y **flairs/moderación**.
+
+
+### Análisis
+
+Métricas **robustas** (mediana, IQR, P90) e **intensidad por post**. Tópicos con **LDA** (K 8–10, coherencia/estabilidad/etiquetabilidad), **redes de co-ocurrencia** para **encuadres**, y **emociones/valencia** adaptadas al español de Chile. Tendencias + **alertas** por desvíos (volumen + encuadre). Validación: muestra anotada, acuerdo inter-anotador y pruebas de uso; KPIs de producto (SUS, insight accionable) y técnicos (coherencia ≥0,50; F1 ≥0,70).
+
+## Código
+
+Se obtuvo alrededor de +200.000 comentarios derivados de 4500 posts. Al nivel propuesto cada palabra es un dato. 
+
+```{python}
+#|eval: false
+#|echo: true 
+
+# --- 🔑 Credenciales Reddit ---
+reddit = praw.Reddit(
+    client_id="_XXXXXXX",
+    client_secret="XXXXX",
+    user_agent="XXXXXXXXXXX"
+)
+
+# --- 📂 Salidas ---
+# Excel con 2 hojas (posts y comentarios separados)
+acum_path_excel = os.path.join(downloads_folder, "reddit_posts_comentarios.xlsx")
+
+# Excel flat (post + comentario en la misma fila)
+flat_xlsx = os.path.join(downloads_folder, "reddit_posts_comentarios_flat.xlsx")
+# --- Subreddits (solo comunidades, sin términos) ---
+subreddits = [
+    "RepublicadeChile",
+    "chile",
+    "ChilePolitico",
+    "chile_es",
+    "Santiago",
+]
+```
+
+
+## Resultados I
+
+![](images/eda_comentarios_por_dia.png)
+
+## Resultados II
+
+![](images/eda_categorias_top20.png){fig-align="center"}
+
+## Resultados III
+
+![](images/lda_perplexity_vs_k.png){fig-align="center"}
+
+## Resultados IV
+
+![](images/word_network_topic_0.png){fig-align="center"}
+
+## Resultados V
+
+![](images/jara-kast.png){fig-align="center"}
+
+# Palabras finales
